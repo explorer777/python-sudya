@@ -35,6 +35,11 @@ td pre{margin:0;font:14px/1.45 Consolas,Menlo,monospace;white-space:pre-wrap}
 .tools button{flex:none;min-width:40px;height:40px;border-radius:10px;border:1px solid #cfc8b8;background:#fff;font:600 17px Consolas,Menlo,monospace;color:var(--ink);padding:0 10px}
 .tools button:active{background:#efeadd}
 .tools .wide{font:600 14px system-ui}
+.tools.words{padding-top:0}
+.tools{padding:3px 0}
+.tools.words button{font:600 15px Consolas,Menlo,monospace;background:#eaf2fb;border-color:#b9d3ee;height:38px}
+.tools.words button.kw{background:#fdf0e1;border-color:#efc99a}
+.tools.words button.tp{background:#e6f4ea;border-color:#b9dfc4}
 textarea{width:100%;display:block;border:2px solid var(--line);border-radius:12px;padding:10px 12px;font:16px/1.5 Consolas,Menlo,"SF Mono",monospace;color:var(--ink);background:#fff;resize:vertical;tab-size:4;-moz-tab-size:4;white-space:pre;overflow:auto}
 textarea:focus{outline:none;border-color:var(--accent)}
 #code{min-height:240px;background:var(--code);color:var(--codeink);border-color:var(--code)}
@@ -69,8 +74,11 @@ textarea:focus{outline:none;border-color:var(--accent)}
   <div class="card">
     <div class="lbl" style="margin-top:0">Твоя програма</div>
     <div class="tools" id="tools"></div>
+    <div class="tools words" id="tools2"></div>
+    <div class="tools words" id="tools3"></div>
+    <div class="tools words" id="tools4"></div>
     <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" placeholder="Пиши код тут"></textarea>
-    <div class="lbl">Ввід для запуску <span class="small">(те, що програма отримає через input())</span></div>
+    <div class="lbl">Ввід <span class="small">(для input())</span></div>
     <textarea id="stdin" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off"></textarea>
     <div class="row">
       <button class="btn run" id="run" disabled>▶ Запустити</button>
@@ -243,24 +251,60 @@ async function onCheck(){
 
 /* ---------- Редактор для телефона ---------- */
 const TOOLS = [
-  ["Tab","\t4",1],["⇤","\tback",1],[":",":"],["(",")","pair"],[")",")"],["[","]","pair"],["]","]"],["\"","\"","pair"],["'","'","pair"],
-  ["=","="],["==","=="],["!=","!="],["<","<"],[">",">"],["<=","<="],[">=",">="],["+","+"],["-","-"],["*","*"],["/","/"],["//","//"],["%","%"],["**","**"],[",",","],[".","."],["_","_"],["#","#"]
+  ["Tab","\t4",1],["⇤","\tback",1],["→","\tright",1],[":",":"],["(",")","pair"],[")",")"],["[","]","pair"],["]","]"],["\"","\"","pair"],["'","'","pair"],[",",","],[".","."],["_","_"],["#","#"]
 ];
+const OPS = [
+  ["=","="],["==","=="],["!=","!="],["<","<"],[">",">"],["<=","<="],[">=",">="],["+","+"],["-","-"],["*","*"],["/","/"],["//","//"],["%","%"],["**","**"]
+];
+// [напис, що вставити, на скільки символів відступити курсор назад, тип]
+const FUNCS = [
+  ["int(input())","int(input())",0,"tp"],["map(int, input().split())","map(int, input().split())",0,"tp"],
+  ["print()","print()",1],["input()","input()",0],["int()","int()",1],["float()","float()",1],["str()","str()",1],
+  ["len()","len()",1],["range()","range()",1],["map()","map()",1],["list()","list()",1],["sum()","sum()",1],
+  ["min()","min()",1],["max()","max()",1],["sorted()","sorted()",1],["abs()","abs()",1],["round()","round()",1]
+];
+const KEYS = [
+  ["if","if ",0,"kw"],["elif","elif ",0,"kw"],["else:","else:",0,"kw"],["for","for ",0,"kw"],["while","while ",0,"kw"],
+  ["in","in ",0,"kw"],["and","and ",0,"kw"],["or","or ",0,"kw"],["not","not ",0,"kw"],["break","break",0,"kw"],["continue","continue",0,"kw"],
+  ["True","True",0],["False","False",0],[".split()",".split()",0],[".append()",".append()",1],[".sort()",".sort()",0]
+];
+function mkBtn(box, label, cls, handler){
+  const b = document.createElement("button");
+  b.type = "button"; b.textContent = label; if(cls) b.className = cls;
+  b.addEventListener("pointerdown", e => e.preventDefault());   // не забирати фокус із поля
+  b.addEventListener("click", () => { const ta = $("#code"); ta.focus(); handler(ta); });
+  box.appendChild(b);
+}
 function buildTools(){
-  const box = $("#tools");
-  TOOLS.forEach(([label, val, kind]) => {
-    const b = document.createElement("button");
-    b.type = "button"; b.textContent = label; if(label==="Tab"||label==="⇤") b.className = "wide";
-    b.addEventListener("pointerdown", e => e.preventDefault());   // не забирати фокус із поля
-    b.addEventListener("click", () => {
-      const ta = $("#code"); ta.focus();
-      if(val === "\t4") return insert(ta, "    ");
-      if(val === "\tback") return dedent(ta);
-      if(kind === "pair"){ const open = label, close = val; insert(ta, open+close); ta.selectionStart = ta.selectionEnd = ta.selectionStart-1; return; }
-      insert(ta, val);
+  const fill = (id, list) => {
+    const box = $(id);
+    list.forEach(([label, val, kind]) => {
+      const cls = (label==="Tab"||label==="⇤"||label==="→") ? "wide" : "";
+      mkBtn(box, label, cls, ta => {
+        if(val === "\t4") return insert(ta, "    ");
+        if(val === "\tback") return dedent(ta);
+        if(val === "\tright"){ ta.selectionStart = ta.selectionEnd = Math.min(ta.value.length, ta.selectionStart + 1); return; }
+        if((val === ")" || val === "]") && ta.value[ta.selectionStart] === val){ ta.selectionStart = ta.selectionEnd = ta.selectionStart + 1; return; }
+        if(kind === "pair"){ insert(ta, label+val); ta.selectionStart = ta.selectionEnd = ta.selectionStart-1; return; }
+        insert(ta, val);
+      });
     });
-    box.appendChild(b);
-  });
+  };
+  const words = (id, list) => {
+    const box = $(id);
+    list.forEach(([label, text, back, kind]) => {
+      mkBtn(box, label, kind || "", ta => {
+        insert(ta, text);
+        if(back) ta.selectionStart = ta.selectionEnd = ta.selectionStart - back;
+      });
+    });
+  };
+  fill("#tools", TOOLS);
+  // другий ряд — оператори (сірі кнопки, як перший)
+  const o = $("#tools2"); o.classList.remove("words");
+  fill("#tools2", OPS);
+  words("#tools3", FUNCS);
+  words("#tools4", KEYS);
 }
 function insert(ta, s){
   const a = ta.selectionStart, b = ta.selectionEnd;
@@ -278,6 +322,9 @@ function dedent(ta){
 function setupEditor(){
   const ta = $("#code");
   ta.addEventListener("beforeinput", e => {
+    if(e.inputType === "insertText" && (e.data === ")" || e.data === "]") && ta.selectionStart === ta.selectionEnd && ta.value[ta.selectionStart] === e.data){
+      e.preventDefault(); ta.selectionStart = ta.selectionEnd = ta.selectionStart + 1; return;
+    }
     if(e.inputType === "insertLineBreak" || e.inputType === "insertParagraph"){
       e.preventDefault();
       const v = ta.value, p = ta.selectionStart, ls = v.lastIndexOf("\n", p-1)+1;
