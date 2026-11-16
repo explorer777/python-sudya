@@ -15,12 +15,12 @@ h1{font-size:21px;margin:4px 0 2px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
 .status{font-size:13px;color:var(--mute);margin-bottom:10px}
 .status.ok{color:var(--ok)}.status.err{color:var(--bad)}
-.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin:0 -2px 10px;-webkit-overflow-scrolling:touch}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:9px 8px 6px 4px;margin:0 -2px 6px;-webkit-overflow-scrolling:touch}
 .chip{flex:none;min-width:44px;height:44px;border-radius:12px;border:2px solid var(--line);background:#fff;font:700 15px system-ui;color:var(--ink);display:grid;place-items:center;position:relative;cursor:pointer}
 .chip.cur{border-color:var(--ink)}
 .chip.l1{border-bottom:5px solid #3b82c4}.chip.l2{border-bottom:5px solid #2f8f4e}.chip.l3{border-bottom:5px solid #d9822b}.chip.l4{border-bottom:5px solid #a23b72}
 .chip.done{background:var(--okbg)}
-.chip.done::after{content:"✓";position:absolute;top:-6px;right:-4px;background:var(--ok);color:#fff;border-radius:99px;width:18px;height:18px;font-size:12px;display:grid;place-items:center}
+.chip.done::after{content:"✓";position:absolute;top:-7px;right:-5px;background:var(--ok);color:#fff;border-radius:99px;width:18px;height:18px;font-size:12px;display:grid;place-items:center}
 .badge{display:inline-block;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;color:#fff}
 .b1{background:#3b82c4}.b2{background:#2f8f4e}.b3{background:#d9822b}.b4{background:#a23b72}
 h2{font-size:19px;margin:6px 0 8px}
@@ -77,6 +77,7 @@ textarea:focus{outline:none;border-color:var(--accent)}
     <div class="tools words" id="tools2"></div>
     <div class="tools words" id="tools3"></div>
     <div class="tools words" id="tools4"></div>
+    <div class="tools words" id="tools5"></div>
     <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" placeholder="Пиши код тут"></textarea>
     <div class="lbl">Ввід <span class="small">(для input())</span></div>
     <textarea id="stdin" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off"></textarea>
@@ -259,7 +260,9 @@ const OPS = [
 // [напис, що вставити, на скільки символів відступити курсор назад, тип]
 const FUNCS = [
   ["int(input())","int(input())",0,"tp"],["map(int, input().split())","map(int, input().split())",0,"tp"],
-  ["print()","print()",1],["input()","input()",0],["int()","int()",1],["float()","float()",1],["str()","str()",1],
+  ["print()","print()",1],["input()","input()",0],["int()","int()",1],["float()","float()",1],["str()","str()",1]
+];
+const FUNCS2 = [
   ["len()","len()",1],["range()","range()",1],["map()","map()",1],["list()","list()",1],["sum()","sum()",1],
   ["min()","min()",1],["max()","max()",1],["sorted()","sorted()",1],["abs()","abs()",1],["round()","round()",1]
 ];
@@ -304,7 +307,8 @@ function buildTools(){
   const o = $("#tools2"); o.classList.remove("words");
   fill("#tools2", OPS);
   words("#tools3", FUNCS);
-  words("#tools4", KEYS);
+  words("#tools4", FUNCS2);
+  words("#tools5", KEYS);
 }
 function insert(ta, s){
   const a = ta.selectionStart, b = ta.selectionEnd;
