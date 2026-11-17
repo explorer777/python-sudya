@@ -65,6 +65,41 @@ textarea:focus{outline:none;border-color:var(--accent)}
 .fail{margin-top:8px;font-size:14px}
 .fail pre{margin:2px 0 8px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:14px/1.45 Consolas,Menlo,monospace;white-space:pre-wrap;word-break:break-word}
 .bar{height:6px;background:#ece7db;border-radius:99px;overflow:hidden;margin-top:8px}.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .2s}
+
+.tabs{display:flex;gap:8px;margin:0 0 10px}
+.tabs button{flex:1;border:2px solid var(--line);background:#fff;border-radius:12px;padding:10px;font:700 15px system-ui;color:var(--ink);cursor:pointer}
+.tabs button.on{border-color:var(--accent);background:#fff8ee}
+#backbar{margin-bottom:10px}
+#backbar .btn{width:100%}
+.isl{margin-bottom:20px}
+.isl-h{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:8px}
+.isl-h b{font-size:18px}
+.sea{position:relative;border-radius:22px;overflow:hidden;border:1px solid rgba(0,0,0,.08)}
+.sea.s1{background:linear-gradient(#c6ecff,#86cdef)}
+.sea.s2{background:linear-gradient(#d9c9f5,#8f9de0)}
+.land{position:absolute;left:7px;right:7px;top:14px;bottom:14px;border-radius:70px 90px 80px 100px/50px 60px 70px 50px}
+.s1 .land{background:linear-gradient(#f7e9b9,#a5d884 30%,#6cbd6a)}
+.s2 .land{background:linear-gradient(#eadfc6,#c9b48d 35%,#9b9a8c)}
+.roads{position:absolute;left:0;top:0;width:100%;height:100%}
+.roads path{fill:none;vector-effect:non-scaling-stroke;stroke-linecap:round}
+.roads .rd{stroke:#9a7a4a;stroke-width:5;stroke-dasharray:2 11;opacity:.85}
+.roads .rg{stroke:#2f8f4e;stroke-width:6}
+.dec{position:absolute;font-size:22px;opacity:.9;pointer-events:none}
+.node{position:absolute;transform:translate(-50%,-50%);width:56px;height:56px;border-radius:50%;border:3px solid #fff;background:#fff;font-size:26px;display:grid;place-items:center;box-shadow:0 3px 0 rgba(0,0,0,.2);cursor:pointer;padding:0;line-height:1}
+.node.done{background:#d4f5dc;border-color:#2f8f4e}
+.node.cur{background:#fff3d6;border-color:var(--accent);animation:pulse 1.6s infinite}
+.node.lock{background:#e5e1d6;border-color:#cfc8b8;cursor:default;filter:grayscale(.5)}
+.node.boss{width:70px;height:70px;font-size:34px}
+.node .ck{position:absolute;top:-6px;right:-6px;background:var(--ok);color:#fff;border-radius:99px;width:20px;height:20px;font-size:12px;display:grid;place-items:center;font-family:system-ui}
+.nl{position:absolute;transform:translateX(-50%);font-size:12px;font-weight:700;background:rgba(255,255,255,.9);border-radius:8px;padding:1px 8px;max-width:132px;text-align:center;line-height:1.25;pointer-events:none}
+.mhero{position:absolute;font-size:32px;transform:translate(-50%,-100%);transition:left .9s ease,top .9s ease;pointer-events:none;filter:drop-shadow(0 2px 0 rgba(0,0,0,.25));z-index:3}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(217,130,43,.55),0 3px 0 rgba(0,0,0,.2)}50%{box-shadow:0 0 0 13px rgba(217,130,43,0),0 3px 0 rgba(0,0,0,.2)}}
+@media (prefers-reduced-motion:reduce){.node.cur{animation:none}.mhero{transition:none}}
+.hook{background:#eaf6ff;border:1px solid #bcdcf0;border-radius:12px;padding:8px 12px;margin-bottom:10px;font-size:15px}
+.cta{background:#fff8ee;border:1px solid #f0d3a8;border-radius:12px;padding:12px 14px;margin-top:10px}
+.cta .btn{width:100%;margin-top:8px}
+.lockcard{background:var(--card);border:1px dashed #b9b2a0;border-radius:16px;padding:16px;text-align:center;color:var(--mute)}
+@media (prefers-reduced-motion:reduce){.mhero{transition:none}}
 </style>
 </head>
 <body>
@@ -72,10 +107,16 @@ textarea:focus{outline:none;border-color:var(--accent)}
   <h1>Міні-суддя: Python</h1>
   <p class="sub">Розв'язуй задачі так, як на олімпіаді: напиши програму, запусти на прикладі, потім натисни «Перевірити».</p>
   <div class="status" id="status">Завантаження Python… (перший раз може тривати хвилинку)</div>
+  <div class="tabs"><button id="tabMap">🗺️ Карта</button><button id="tabList">📋 Список</button></div>
+  <div id="mapview"></div>
+  <div id="listview">
   <div class="grp"><span>Прості задачі</span><span class="small" id="cnt-basic"></span></div>
   <div class="chips" id="chips-basic"></div>
   <div class="grp"><span>Олімпіадні задачі</span><span class="small" id="cnt-olymp"></span></div>
   <div class="chips" id="chips-olymp"></div>
+  </div>
+  <div id="work">
+  <div id="backbar"><button class="btn ghost" id="toMap">← До карти</button></div>
   <div class="card" id="task"></div>
   <div class="card">
     <div class="lbl" style="margin-top:0">Твоя програма</div>
@@ -95,6 +136,7 @@ textarea:focus{outline:none;border-color:var(--accent)}
     <div class="lbl">Вивід</div>
     <div class="out" id="out"></div>
     <div id="result"></div>
+  </div>
   </div>
 </div>
 <script>
@@ -179,7 +221,8 @@ function chips(){
 function cell(s){ return `<pre>${esc(s)}</pre>`; }
 function showTask(){
   const t = TASKS[cur];
-  $("#task").innerHTML = `
+  const mm = view==="map" ? nodeMeta(t) : null;
+  $("#task").innerHTML = (mm ? `<div class="hook">${mm.ico} <b>${esc(mm.place)}</b><br>${esc(mm.hook)}</div>` : "") + `
     <span class="badge b${t.level}">${GROUPS[t.group]} · рівень ${t.level}</span> <span class="small">Задача ${inGroup(t.group).findIndex(x=>x.t===t)+1} із ${inGroup(t.group).length}</span>
     <h2>${esc(t.title)}</h2>
     <div>${esc(t.desc)}</div>
@@ -216,7 +259,7 @@ async function onRun(){
 }
 async function onCheck(){
   saveCode();
-  const t = TASKS[cur], code = $("#code").value;
+  const t = TASKS[cur], code = $("#code").value, wasSolved = !!solved[t.id];
   if(!code.trim()){ $("#result").innerHTML = `<div class="verdict no"><b>Спочатку напиши програму</b></div>`; return; }
   $("#run").disabled = true; $("#check").disabled = true;
   const res = [];
@@ -257,6 +300,7 @@ async function onCheck(){
   }
   $("#result").innerHTML += html;
   showTask();
+  afterVerdict(ok === all, t, wasSolved);
   if(pyReady){ $("#run").disabled = false; $("#check").disabled = false; }
 }
 
@@ -352,12 +396,134 @@ function setupEditor(){
   ta.addEventListener("input", () => { clearTimeout(setupEditor.t); setupEditor.t = setTimeout(saveCode, 400); });
 }
 
+
+/* ---------- Карта пригод ---------- */
+const ISLANDS = {
+ basic:{ name:"Острів Початківців", emoji:"🏝️", cls:"s1", decor:["🌊","⛵","🐚","🦀","🐠","🌴"],
+  intro:"Ти потрапив на загублений острів. Щоб дістатися скарбу у вулкані, проходь місця одне за одним і розв'язуй задачі.",
+  nodes:[
+   ["🏖️","Бухта розбитих кораблів","Хвилі винесли на берег дві дошки. Склади їхні довжини, щоб побудувати пліт."],
+   ["🌴","Пальмовий гай","Мавпа дає банани за бали: подвой свої бали й додай 5 бонусних."],
+   ["🌺","Квіткова галявина","Треба обгородити клумбу й засіяти її травою. Порахуй периметр і площу."],
+   ["🍬","Хатина цукерника","Цукерник ділить цукерки між учнями, а залишок забирає собі. Скільки кому?"],
+   ["🌉","Міст над річкою","Страж моста питає, чи число парне. Відповіси правильно, і він пропустить."],
+   ["🗿","Кам'яні ідоли","Ідол пропустить тебе, якщо назвеш найбільше з трьох чисел."],
+   ["🚌","Автобусна зупинка","Водій продає квитки залежно від віку. Допоможи визначити тариф."],
+   ["🪜","Сходи до печери","Кожна сходинка має свій номер. Знайди суму номерів від 1 до n."],
+   ["🕯️","Печера з написами","На стінах викарбувана таблиця множення. Відтвори її для потрібного числа."],
+   ["🥁","Барабани племені","Барабанщики б'ють лише на парні числа. Скільки ударів на відрізку?"],
+   ["🗝️","Скриня зі списком","Щоб відчинити скриню, знайди суму всіх чисел і найбільше з них."],
+   ["🦜","Чарівний папуга","Папуга вимовляє слова. Порахуй, скільки в слові голосних."],
+   ["🌋","Вулкан Паліндром","Брама до скарбу відчиниться словом, яке однаково читається в обидва боки!"]
+  ]},
+ olymp:{ name:"Острів Олімпійців", emoji:"🏔️", cls:"s2", decor:["🌙","⭐","☁️","🦅","🌠","🪁"],
+  intro:"Другий острів лежить за туманом. Тут чекають серйозні випробування, як на справжній олімпіаді.",
+  nodes:[
+   ["⏱️","Годинникова вежа","Вежа зупинилась. Лише розв'язана задача знову запустить її механізм."],
+   ["📅","Календарна бухта","Моряки загубили лік днів. Допоможи навести лад."],
+   ["🌙","Нічний маяк","Маяк погас посеред ночі. Розв'яжи задачу, і він засвітиться знову."],
+   ["🪨","Непарні скелі","Скелі перегородили стежку. Розбери завал за допомогою коду."],
+   ["🏴‍☠️","Піратська скарбниця","Пірати охороняють золото. Тільки розумний код відчинить двері."],
+   ["🍄","Грибний ліс","У лісі легко заблукати. Розв'яжи задачу, щоб знайти вихід."],
+   ["🧊","Крижана печера","Шлях перекриває крига. Розбий її розв'язком."],
+   ["⛰️","Три піки","Гірський перевал закритий. Знайди правильну відповідь, щоб пройти."],
+   ["🪵","Лісопилка","Лісоруби чекають на твою допомогу, щоб рухатись далі."],
+   ["🏘️","Селище сусідів","Мешканці селища не пускають чужинців. Доведи, що ти вмієш кодити."],
+   ["🚂","Довга залізниця","Потяг застряг на колії. Розв'яжи задачу, щоб він поїхав."],
+   ["🐉","Лігво Дракона","Фінальний бос острова! Розв'яжи останню задачу й переможи дракона."]
+  ]}
+};
+let view = LS.get("judge_view")==="list" ? "list" : "map", inWork = false;
+const heroAt = {};
+function nodeMeta(t){
+  const g = t.group, k = inGroup(g).findIndex(x=>x.t===t); const n = ISLANDS[g] && ISLANDS[g].nodes[k];
+  return n ? {ico:n[0], place:n[1], hook:n[2]} : null;
+}
+function coinsTotal(){ return TASKS.reduce((s,t)=>s+(solved[t.id]?t.level*10:0),0); }
+function islandDone(g){ return inGroup(g).every(x=>solved[x.t.id]); }
+function frontier(g){ const l=inGroup(g); const f=l.findIndex(x=>!solved[x.t.id]); return f<0 ? l.length-1 : f; }
+function islandHTML(g){
+  const I = ISLANDS[g], list = inGroup(g), n = list.length, H = n*88+112;
+  const xs = [50,24,72,28,74,26,70,32,76,24,66,34,50];
+  const pts = list.map((x,k)=>({x:xs[k%xs.length], y:84+k*88, t:x.t, i:x.i, m:I.nodes[k]}));
+  const front = frontier(g), done = list.filter(x=>solved[x.t.id]).length, all = islandDone(g);
+  let roads = "";
+  for(let k=0;k<n-1;k++){
+    const a=pts[k], b=pts[k+1], ym=(a.y+b.y)/2;
+    roads += `<path class="${solved[a.t.id]?"rg":"rd"}" d="M ${a.x} ${a.y} C ${a.x} ${ym} ${b.x} ${ym} ${b.x} ${b.y}"/>`;
+  }
+  const dec = I.decor.map((e,j)=>`<span class="dec" style="left:${j%2?88:2}%;top:${40+j*((H-120)/I.decor.length)}px">${e}</span>`).join("");
+  const nodes = pts.map((p,k)=>{
+    const dn=!!solved[p.t.id], cur=(k===front && !all), lock=k>front && !dn, boss=(k===n-1);
+    const cls = "node"+(dn?" done":"")+(cur?" cur":"")+(lock?" lock":"")+(boss?" boss":"");
+    return `<button class="${cls}" style="left:${p.x}%;top:${p.y}px" data-i="${p.i}" ${lock?"disabled":""} aria-label="${esc(p.m[1])}"><span>${lock?"🔒":p.m[0]}</span>${dn?'<span class="ck">✓</span>':""}</button>
+      <div class="nl" style="left:${p.x}%;top:${p.y+(boss?38:33)}px">${esc(p.m[1])}</div>`;
+  }).join("");
+  const hp = pts[heroAt[g]!==undefined ? heroAt[g] : front];
+  const treasure = all ? `<div class="dec" style="left:${pts[n-1].x}%;top:${pts[n-1].y-76}px;font-size:34px;transform:translateX(-50%)">💎</div>` : "";
+  return `<div class="isl" id="isl-${g}">
+    <div class="isl-h"><b>${I.emoji} ${I.name}</b>
+      <div class="small">Розв'язано ${done} із ${n}${all?" · острів підкорено! 🎉":""}</div>
+      <div class="bar"><i style="width:${done/n*100}%"></i></div>
+      <div class="small" style="margin-top:6px">${I.intro}</div></div>
+    <div class="sea ${I.cls}" style="height:${H}px"><div class="land"></div>
+      <svg class="roads" viewBox="0 0 100 ${H}" preserveAspectRatio="none">${roads}</svg>${dec}${nodes}${treasure}
+      <div class="mhero" id="mh-${g}" style="left:${hp.x}%;top:${hp.y-30}px">🧒</div></div></div>`;
+}
+function renderMap(){
+  let h = `<div class="small" style="margin:0 2px 8px">Торкнись підсвіченого місця, щоб розв'язати задачу й піти далі. Усього монет: <b>🪙 ${coinsTotal()}</b></div>`;
+  h += islandHTML("basic");
+  if(islandDone("basic") || inGroup("olymp").some(x=>solved[x.t.id])) h += islandHTML("olymp");
+  else h += `<div class="lockcard">🔒 <b>Острів Олімпійців</b><br>Відкриється, коли ти пройдеш усі 13 місць Острова Початківців.</div>`;
+  $("#mapview").innerHTML = h;
+  document.querySelectorAll(".node:not(.lock)").forEach(b=>b.onclick=()=>{ inWork=true; open(+b.dataset.i); renderView(); window.scrollTo(0,0); });
+  for(const g of ["basic","olymp"]){
+    const el = $("#mh-"+g); if(!el) continue;
+    const front = frontier(g), list = inGroup(g);
+    if(heroAt[g]!==undefined && heroAt[g]!==front){
+      const k = front, I = ISLANDS[g], xs=[50,24,72,28,74,26,70,32,76,24,66,34,50];
+      setTimeout(()=>{ el.style.left = xs[k%xs.length]+"%"; el.style.top = (84+k*88-30)+"px"; }, 400);
+    }
+    heroAt[g] = front;
+  }
+}
+function renderView(){
+  const map = view==="map";
+  $("#tabMap").classList.toggle("on", map); $("#tabList").classList.toggle("on", !map);
+  $("#mapview").style.display = map && !inWork ? "" : "none";
+  $("#listview").style.display = map ? "none" : "";
+  $("#work").style.display = (!map || inWork) ? "" : "none";
+  $("#backbar").style.display = map && inWork ? "" : "none";
+  if(map && !inWork) renderMap();
+  if(map && inWork) showTask();
+}
+function afterVerdict(success, t, was){
+  if(!success || view!=="map") return;
+  const g = t.group, list = inGroup(g), k = list.findIndex(x=>x.t===t), I = ISLANDS[g];
+  const gain = was ? "" : `<b>+${t.level*10} 🪙</b>. `;
+  let msg;
+  if(islandDone(g)){
+    msg = g==="basic" ? `🏝️ <b>Острів Початківців підкорено!</b> ${gain}Скарб у вулкані твій. Попереду новий острів.` : `🏔️ <b>Острів Олімпійців підкорено!</b> ${gain}Ти справжній олімпієць!`;
+  } else {
+    const nx = I.nodes[k+1];
+    msg = `🗺️ <b>Шлях відкрито!</b> ${gain}Далі на тебе чекає «${esc(nx ? nx[1] : "")}».`;
+  }
+  $("#result").insertAdjacentHTML("beforeend", `<div class="cta">${msg}<button class="btn run" id="toMap2">🗺️ Продовжити подорож</button></div>`);
+  $("#toMap2").onclick = toMap;
+}
+function toMap(){ saveCode(); inWork = false; renderView(); window.scrollTo(0,0); }
+function initView(){
+  $("#tabMap").onclick = () => { view="map"; inWork=false; LS.set("judge_view","map"); renderView(); window.scrollTo(0,0); };
+  $("#tabList").onclick = () => { view="list"; LS.set("judge_view","list"); renderView(); };
+  $("#toMap").onclick = toMap;
+}
+
 /* ---------- Старт ---------- */
 buildTools(); setupEditor();
 $("#run").onclick = onRun; $("#check").onclick = onCheck;
 $("#reset").onclick = () => { if(confirm === undefined){} $("#code").value = ""; saveCode(); $("#result").innerHTML=""; };
 $("#ex1").onclick = () => { const t=TASKS[cur]; const i = (($("#ex1").dataset.k||0)|0) % t.examples.length; $("#stdin").value = t.examples[i].i; $("#ex1").dataset.k = i+1; $("#ex1").textContent = "Приклад "+(((i+1)%t.examples.length)+1); };
-chips(); open(0); spawn();
+initView(); chips(); open(0); renderView(); spawn();
 setTimeout(()=>{ if(!pyReady && !failMsg) setStatus("Python ще завантажується… Це файл близько 13 МБ, на мобільному інтернеті може тривати довше.", ""); }, 15000);
 </script>
 </body>
